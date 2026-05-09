@@ -19,6 +19,8 @@ jobs:
           script: |
             cd DeployML
             git pull origin main
+            docker stop $(docker ps -q --filter "publish=8000") || true
+            docker rm $(docker ps -aq --filter "publish=8000") || true
             docker stop deployml-container || true
             docker rm deployml-container || true
             docker build -t deployml .
