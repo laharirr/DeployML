@@ -1,0 +1,25 @@
+name: DeployML CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd DeployML
+            git pull origin main
+            docker stop deployml-container || true
+            docker rm deployml-container || true
+            docker build -t deployml .
+            docker run -d --name deployml-container -p 8000:8000 deployml
